@@ -98,7 +98,7 @@ public class NpcTab extends Composite {
 
 			}
 	    });
-	    new Label(MainApp.shell, SWT.NONE);
+	    new Label(this, SWT.NONE);
 	}
 
 	@Override
