@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.osgi_3.10.1.v20140909-1633.jar" sourcepath="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.osgi_3.10.1.v20140909-1633.jar"/>
 	<classpathentry kind="lib" path="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.core.commands_3.6.100.v20140528-1422.jar" sourcepath="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.core.commands_3.6.100.v20140528-1422.jar"/>
 	<classpathentry kind="lib" path="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.equinox.common_3.6.200.v20130402-1505.jar" sourcepath="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.equinox.common_3.6.200.v20130402-1505.jar"/>
@@ -14,5 +13,7 @@
 	<classpathentry kind="lib" path="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.ui.workbench_3.106.1.v20140827-1737.jar" sourcepath="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.ui.workbench_3.106.1.v20140827-1737.jar"/>
 	<classpathentry kind="lib" path="/Users/xi.a.wan/Documents/res/eclipse/plugins/com.ibm.icu_52.1.0.v201404241930.jar" sourcepath="/Users/xi.a.wan/Documents/res/eclipse/plugins/com.ibm.icu_52.1.0.v201404241930.jar"/>
 	<classpathentry kind="lib" path="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.ui.forms_3.6.100.v20140422-1825.jar" sourcepath="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.ui.forms_3.6.100.v20140422-1825.jar"/>
+	<classpathentry kind="lib" path="/Users/xi.a.wan/Documents/dev/workspace/xlsEditor/lib/jexcelapi/jxl.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
