@@ -25,6 +25,7 @@ public class NpcTab extends Composite {
 	private Button btnSave;
 	private Button buttonSelectFile;
 	
+	private String sheetName = "Sheet1";
 	private String selectedFile;
 	private String fileFilterPath = "/tmp";
 	private String fileSelectedPath = "";
@@ -69,8 +70,8 @@ public class NpcTab extends Composite {
 		            fileSelectedPath = fileDialog.getFilterPath() + '/' + selectedFile;
 		            
 		            xlsTable.clearAll(); 
-		            xlsTableParser.importContents(fileSelectedPath);
-		            xlsTableParser.loadToTable(xlsTable, "First Sheet");
+		            xlsTableParser.importContents(fileSelectedPath, sheetName);
+		            xlsTableParser.loadToTable(xlsTable);
 		    	    
 		        }    
 			}

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
@@ -38,7 +39,8 @@ public class XlsTable {
 	
     private Vector headers = new Vector();
     private Vector data = new Vector(); 
-    private HashMap<String, Vector> sheetsMap = new HashMap<String, Vector>();
+    private HashMap<String, Vector> sheetsMap;
+    private String sheetName;
  
     public Vector getHeaders() {
 		return headers;
@@ -62,6 +64,7 @@ public class XlsTable {
 	
 	public void setData(int row, Vector dd) {
 		this.data.set(row, dd);
+		this.sheetsMap.put(this.sheetName, this.data);
 	}
 	
 	public void setData(int row, int col, String update) {
@@ -69,15 +72,10 @@ public class XlsTable {
 		Vector dd = (Vector) this.data.get(row);
   	  	dd.set(col, update);
   	  	this.data.set(row, dd);
+  	  	this.sheetsMap.put(this.sheetName, this.data);
 	}
 	
-	public void loadToTable(final Table table, String sheetName) {
-		
-		this.data = sheetsMap.get(sheetName);
-		if (data == null) {
-			return;
-		}
-		this.headers = (Vector)data.get(3);
+	public void loadToTable(final Table table) {
 		
 		// fill the headers and data
         for (int i = 0; i < headers.size(); i++) {
@@ -157,8 +155,9 @@ public class XlsTable {
         });        
 	}
 
-	public void importContents(String fileSelectedPath) {
+	public void importContents(String fileSelectedPath, String name) {
     	try {
+    		sheetsMap = new HashMap<String, Vector>();
             File inputWorkbook = new File(fileSelectedPath);
             Workbook w = Workbook.getWorkbook(inputWorkbook);
             Sheet[] sheets = w.getSheets();
@@ -187,7 +186,13 @@ public class XlsTable {
                 }
                 sheetsMap.put(sheetName, sheetData);
             }
-
+            
+            this.sheetName = name;
+    		this.data = sheetsMap.get(name);
+    		if (data == null) {
+    			return;
+    		}
+    		this.headers = (Vector)data.get(3);
         } catch (BiffException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -198,20 +203,24 @@ public class XlsTable {
     
     public void exportContents(String outputPath){
     	try { 
-	        DefaultTableModel model = new DefaultTableModel(data, headers);
-	        WritableWorkbook workbook = Workbook.createWorkbook(new File(outputPath));
-	        WritableSheet sheet = workbook.createSheet("First Sheet", 0);
-	        for (int i=0; i < model.getRowCount(); i++) {
-				for (int j=0; j < model.getColumnCount(); j++) {
-					if (model.getValueAt(i, j) != null) {
-						Label content = new Label(j, i, model.getValueAt(i, j).toString());
-						sheet.addCell(content);
-					}
-				}
-	        } 
-	        
-			workbook.write();
-			workbook.close(); 
+    		WritableWorkbook workbook = Workbook.createWorkbook(new File(outputPath));
+    		int idx = 0;
+    		for (Entry<String, Vector> entry : sheetsMap.entrySet()) {
+    			Vector dd = entry.getValue();
+    			DefaultTableModel model = new DefaultTableModel(dd, (Vector)data.get(3));
+    			WritableSheet sheet = workbook.createSheet(entry.getKey(), idx++);
+    			for (int i=0; i < model.getRowCount(); i++) {
+    				for (int j=0; j < model.getColumnCount(); j++) {
+    					if (model.getValueAt(i, j) != null) {
+    						Label content = new Label(j, i, model.getValueAt(i, j).toString());
+    						sheet.addCell(content);
+    					}
+    				}
+    	        } 
+    			
+    		}
+    		workbook.write();
+    		workbook.close(); 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
