@@ -1,5 +1,7 @@
 package Composites;
 
+import libs.XlsTable;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -24,18 +26,19 @@ public class NpcTab extends Composite {
 	private Table xlsTable;
 	private Button btnSave;
 	private Button buttonSelectFile;
-	
-	private String sheetName = "Sheet1";
+
 	private String selectedFile;
-	private String fileFilterPath = "/tmp";
+	private String defaultDirPath = "/Users/xi.a.wan/Documents/dev/svn/projectX/策划文件";
 	private String fileSelectedPath = "";
+	
+	private String sheetName = "AIConfig";
 	
 	/**
 	 * Create the composite.
 	 * @param parent
 	 * @param style
 	 */
-	public NpcTab(Display display, Composite parent, int style) {
+	public NpcTab(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new GridLayout(1, false));
 		this.setSize(650, 600);
@@ -44,7 +47,7 @@ public class NpcTab extends Composite {
 
 	    label = new Label(this, SWT.BORDER | SWT.WRAP);
 	    label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-	    label.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+	    //label.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
 	    label.setText("Select a dir/file by clicking the buttons below.");
 	    
 	    buttonSelectFile = new Button(this, SWT.PUSH);
@@ -52,14 +55,15 @@ public class NpcTab extends Composite {
 	    buttonSelectFile.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
 				FileDialog fileDialog = new FileDialog(MainApp.shell, SWT.SINGLE);
-				fileDialog.setFilterPath(fileFilterPath);
+				fileDialog.setFilterPath(defaultDirPath);
 				fileDialog.setFilterExtensions(new String[]{"*.xls"});
 		        fileDialog.setFilterNames(new String[]{ "xls Document"});
 		        
 		        String firstFile = fileDialog.open();
 		        if(firstFile != null) {
-		            fileFilterPath = fileDialog.getFilterPath();
+		        	//defaultDirPath = fileDialog.getFilterPath();
 		            String[] selectedFiles = fileDialog.getFileNames();
 		            StringBuffer sb = new StringBuffer("Selected files under dir " + fileDialog.getFilterPath() +  ": \n");
 		            for(int i=0; i<selectedFiles.length; i++) {
@@ -70,10 +74,21 @@ public class NpcTab extends Composite {
 		            fileSelectedPath = fileDialog.getFilterPath() + '/' + selectedFile;
 		            
 		            xlsTable.clearAll(); 
-		            xlsTableParser.importContents(fileSelectedPath, sheetName);
+		            xlsTableParser.importContents(fileSelectedPath);
 		            xlsTableParser.loadToTable(xlsTable);
 		    	    
 		        }    
+			}
+	    });
+	    
+	    Button defaultFile = new Button(this, SWT.PUSH);
+	    defaultFile.setText("load defaultFile");
+	    defaultFile.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				xlsTable.clearAll(); 
+	            xlsTableParser.importContentsBySheet(sheetName);
+	            xlsTableParser.loadToTable(xlsTable);
 			}
 	    });
 	    new Label(this, SWT.NONE);
@@ -91,7 +106,7 @@ public class NpcTab extends Composite {
 			@Override
 			public void handleEvent(Event evt) {
 				// TODO Auto-generated method stub
-				if (selectedFile != null || !selectedFile.isEmpty()) {
+				if (selectedFile != null && !selectedFile.isEmpty()) {
 					String outputPath = "/tmp/" + selectedFile;
 					xlsTableParser.exportContents(outputPath);
 					label.setText("file has been saved to " + outputPath);					

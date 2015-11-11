@@ -1,4 +1,4 @@
-package Composites;
+package libs;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,8 +39,9 @@ public class XlsTable {
 	
     private Vector headers = new Vector();
     private Vector data = new Vector(); 
-    private HashMap<String, Vector> sheetsMap;
     private String sheetName;
+    
+    public static HashMap<String, Vector> sheetsMap = new HashMap<String, Vector>();
  
     public Vector getHeaders() {
 		return headers;
@@ -75,8 +76,52 @@ public class XlsTable {
   	  	this.sheetsMap.put(this.sheetName, this.data);
 	}
 	
+	public static void loadXlsToMem(ArrayList<String> files) {
+		try {
+			sheetsMap.clear();
+			for(String filePath: files) {
+				File inputWorkbook = new File(filePath);
+				Workbook w = Workbook.getWorkbook(inputWorkbook);
+				Sheet[] sheets = w.getSheets();
+				
+				for (int idx = 0; idx < sheets.length; idx ++) {
+	            	Sheet sheet = w.getSheet(idx);
+	            	String sheetName = sheet.getName();
+	            	Vector sheetData = new Vector();
+	            	
+	            	int rows = sheet.getRows();
+	                int cols = sheet.getColumns();
+	                
+	                for (int i = 0; i < rows; i++) {
+	                	Vector d = new Vector();
+	                	for (int j = 0; j < cols; j++) {
+	                		Cell cell = sheet.getCell(j, i);
+	                		CellType type = cell.getType();
+	                		if (type == CellType.LABEL) {
+	                			d.add(cell.getContents().toString());
+	                		}
+	                		if (type == CellType.NUMBER) {
+	                			d.add(cell.getContents().toString());
+	                		}
+	                		if (type == CellType.EMPTY) {
+	                			d.add("");
+	                		}
+	                	}
+	                	sheetData.add(d);
+	                }
+	                sheetsMap.put(sheetName, sheetData);
+	            }
+				
+			}
+		} catch (BiffException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void loadToTable(final Table table) {
-		
+		table.clearAll();
+		if (data == null) return;
 		// fill the headers and data
         for (int i = 0; i < headers.size(); i++) {
         	TableColumn column = new TableColumn(table, SWT.NONE, i);
@@ -154,17 +199,31 @@ public class XlsTable {
         	
         });        
 	}
+	
+	public void importContentsBySheet(String name) {
+		if (sheetsMap.get(name) == null || sheetsMap.get(name).isEmpty()) {
+			return;
+		}
+		System.out.println("bingo " + name);
+        this.sheetName = name;
+		this.data = sheetsMap.get(name);
+		if (data == null) {
+			return;
+		}
+		this.headers = (Vector)data.get(3);
+	}
 
-	public void importContents(String fileSelectedPath, String name) {
+	public void importContents(String fileSelectedPath) {
     	try {
-    		sheetsMap = new HashMap<String, Vector>();
-            File inputWorkbook = new File(fileSelectedPath);
+			File inputWorkbook = new File(fileSelectedPath);
+			System.out.println(fileSelectedPath);
             Workbook w = Workbook.getWorkbook(inputWorkbook);
             Sheet[] sheets = w.getSheets();
+            String sheetName = "";
             
             for (int idx = 0; idx < sheets.length; idx ++) {
             	Sheet sheet = w.getSheet(idx);
-            	String sheetName = sheet.getName();
+            	sheetName = sheet.getName();
             	Vector sheetData = new Vector();
             	
             	int rows = sheet.getRows();
@@ -189,9 +248,9 @@ public class XlsTable {
                 }
                 sheetsMap.put(sheetName, sheetData);
             }
-            
-            this.sheetName = name;
-    		this.data = sheetsMap.get(name);
+    		
+            this.sheetName = sheetName;
+    		this.data = sheetsMap.get(sheetName);
     		if (data == null) {
     			return;
     		}
@@ -203,6 +262,8 @@ public class XlsTable {
 			e.printStackTrace();
 		}    	
     }
+	
+	
     
     public void exportContents(String outputPath){
     	try { 
