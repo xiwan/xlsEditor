@@ -37,8 +37,28 @@ public class XlsTable {
 	
     private Vector headers = new Vector();
     private Vector data = new Vector();
-    
-    public void importContents(String fileSelectedPath, final Table table) {
+ 
+    public Vector getHeaders() {
+		return headers;
+	}
+
+//	public void setHeaders(Vector headers) {
+//		this.headers = headers;
+//	}
+
+	public Vector getData(int row) {
+		return (Vector) this.data.get(row);
+	}
+	
+	
+	public void setData(int row, int col, String update) {
+		//this.data = data;
+		Vector dd = (Vector) this.data.get(row);
+  	  	dd.set(col, update);
+  	  	this.data.set(row, dd);
+	}
+
+	public void importContents(String fileSelectedPath, final Table table) {
     	try {
             File inputWorkbook = new File(fileSelectedPath);
             Workbook w = Workbook.getWorkbook(inputWorkbook);
@@ -107,9 +127,10 @@ public class XlsTable {
 										switch (evt.type) {
 						                  case SWT.FocusOut:
 						                	  item.setText(column, text.getText());
-						                	  Vector dd = (Vector) data.get(row);
-						                	  dd.set(column, text.getText());
-						                	  data.set(row, dd);
+						                	  XlsTable.this.setData(row, column, text.getText());;
+//						                	  Vector dd = (Vector) data.get(row);
+//						                	  dd.set(column, text.getText());
+//						                	  data.set(row, dd);
 						                	  //System.out.println(column + " "+ row + " = " + dd.get(column));
 						                	  text.dispose();
 						                	  break;
