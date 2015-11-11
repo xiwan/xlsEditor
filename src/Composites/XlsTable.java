@@ -3,6 +3,7 @@ package Composites;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -36,8 +37,8 @@ import jxl.write.biff.RowsExceededException;
 public class XlsTable {
 	
     private Vector headers = new Vector();
-    private Vector data = new Vector();
-    private Sheet sheet;
+    private Vector data = new Vector(); 
+    private HashMap<String, Vector> sheetsMap = new HashMap<String, Vector>();
  
     public Vector getHeaders() {
 		return headers;
@@ -70,19 +71,26 @@ public class XlsTable {
   	  	this.data.set(row, dd);
 	}
 	
-	public void loadToTable(final Table table) {
-        // fill the headers and data
+	public void loadToTable(final Table table, String sheetName) {
+		
+		this.data = sheetsMap.get(sheetName);
+		if (data == null) {
+			return;
+		}
+		this.headers = (Vector)data.get(3);
+		
+		// fill the headers and data
         for (int i = 0; i < headers.size(); i++) {
         	TableColumn column = new TableColumn(table, SWT.NONE, i);
         	column.setText(headers.get(i).toString());
         	table.getColumn(i).pack();
-        } 
-        for (int i = 0; i < sheet.getRows(); i++) {
+        }
+        
+        for (int i = 0; i < data.size(); i++) {
         	TableItem item = new TableItem(table, SWT.NONE, i);
-        	for (int j = 0; j < sheet.getColumns(); j++) {
-        		Cell cell = sheet.getCell(j, i);
-            	item.setText(j, cell.getContents());
-            	//item.addListener(eventType, listener);
+        	Vector dd = (Vector)data.get(i);
+        	for (int j = 0; j < headers.size(); j++) {
+            	item.setText(j, dd.get(j).toString());
         	}	
         }
         
@@ -113,10 +121,6 @@ public class XlsTable {
 					                  case SWT.FocusOut:
 					                	  item.setText(column, text.getText());
 					                	  XlsTable.this.setData(row, column, text.getText());;
-//					                	  Vector dd = (Vector) data.get(row);
-//					                	  dd.set(column, text.getText());
-//					                	  data.set(row, dd);
-					                	  //System.out.println(column + " "+ row + " = " + dd.get(column));
 					                	  text.dispose();
 					                	  break;
 					                  case SWT.Traverse:
@@ -157,30 +161,33 @@ public class XlsTable {
     	try {
             File inputWorkbook = new File(fileSelectedPath);
             Workbook w = Workbook.getWorkbook(inputWorkbook);
-            this.sheet = w.getSheet(0);
-            int rows = sheet.getRows();
-            int cols = sheet.getColumns();
+            Sheet[] sheets = w.getSheets();
             
-            headers.clear(); 
-            data.clear();
-
-            for (int i = 0; i < rows; i++) {
-            	Vector d = new Vector();
-            	for (int j = 0; j < cols; j++) {
-            		Cell cell = sheet.getCell(j, i);
-            		CellType type = cell.getType();
-            		if (type == CellType.LABEL) {
-            			d.add(cell.getContents().toString());
-            		}
-            		if (type == CellType.NUMBER) {
-            			d.add(cell.getContents().toString());
-            		}			            		
-	            	if (i == 3) {
-	            		headers.add(cell.getContents());
-	            	}
-            	}
-            	data.add(d);	
+            for (int idx = 0; idx < sheets.length; idx ++) {
+            	Sheet sheet = w.getSheet(idx);
+            	String sheetName = sheet.getName();
+            	Vector sheetData = new Vector();
+            	
+            	int rows = sheet.getRows();
+                int cols = sheet.getColumns();
+                
+                for (int i = 0; i < rows; i++) {
+                	Vector d = new Vector();
+                	for (int j = 0; j < cols; j++) {
+                		Cell cell = sheet.getCell(j, i);
+                		CellType type = cell.getType();
+                		if (type == CellType.LABEL) {
+                			d.add(cell.getContents().toString());
+                		}
+                		if (type == CellType.NUMBER) {
+                			d.add(cell.getContents().toString());
+                		}
+                	}
+                	sheetData.add(d);
+                }
+                sheetsMap.put(sheetName, sheetData);
             }
+
         } catch (BiffException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -202,19 +209,6 @@ public class XlsTable {
 					}
 				}
 	        } 
-
-//            JTable table = new JTable();
-            
-//            table.setModel(model);
-//            table.setAutoCreateRowSorter(true);
-//            model = new DefaultTableModel(data, headers);
-//            table.setModel(model);
-//            JScrollPane scroll = new JScrollPane(table);
-//            JFrame f = new JFrame();
-//            f.getContentPane().add(scroll);
-//            f.setSize(400, 200);
-//            f.setResizable(true);
-//            f.setVisible(true);
 	        
 			workbook.write();
 			workbook.close(); 

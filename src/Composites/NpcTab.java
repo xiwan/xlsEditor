@@ -70,7 +70,7 @@ public class NpcTab extends Composite {
 		            
 		            xlsTable.clearAll(); 
 		            xlsTableParser.importContents(fileSelectedPath);
-		            xlsTableParser.loadToTable(xlsTable);
+		            xlsTableParser.loadToTable(xlsTable, "First Sheet");
 		    	    
 		        }    
 			}
