@@ -181,6 +181,9 @@ public class XlsTable {
                 		if (type == CellType.NUMBER) {
                 			d.add(cell.getContents().toString());
                 		}
+                		if (type == CellType.EMPTY) {
+                			d.add("");
+                		}
                 	}
                 	sheetData.add(d);
                 }
