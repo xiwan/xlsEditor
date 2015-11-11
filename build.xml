@@ -17,6 +17,7 @@
             </manifest>
     		<fileset dir="/Users/xi.a.wan/Documents/dev/workspace/xlsEditor/bin"/>
     		<fileset dir="/Users/xi.a.wan/Documents/dev/workspace/xlsEditor/lib" includes="swt-*-4.4.3.jar" />
+    		<zipfileset src="/Users/xi.a.wan/Documents/dev/workspace/xlsEditor/lib/jexcelapi/jxl.jar" />
     		<zipfileset excludes="META-INF/*.SF" src="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.osgi_3.10.1.v20140909-1633.jar"/>
     		<zipfileset excludes="META-INF/*.SF" src="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.core.commands_3.6.100.v20140528-1422.jar"/>
     		<zipfileset excludes="META-INF/*.SF" src="/Users/xi.a.wan/Documents/res/eclipse/plugins/org.eclipse.equinox.common_3.6.200.v20130402-1505.jar"/>
