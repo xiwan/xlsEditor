@@ -68,9 +68,9 @@ public class NpcTab extends Composite {
 		            selectedFile = selectedFiles[0];
 		            fileSelectedPath = fileDialog.getFilterPath() + '/' + selectedFile;
 		            
-		            xlsTable.clearAll();
-		            
-		            xlsTableParser.importContents(fileSelectedPath, xlsTable);
+		            xlsTable.clearAll(); 
+		            xlsTableParser.importContents(fileSelectedPath);
+		            xlsTableParser.loadToTable(xlsTable);
 		    	    
 		        }    
 			}

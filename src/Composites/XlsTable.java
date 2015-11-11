@@ -37,6 +37,7 @@ public class XlsTable {
 	
     private Vector headers = new Vector();
     private Vector data = new Vector();
+    private Sheet sheet;
  
     public Vector getHeaders() {
 		return headers;
@@ -60,12 +61,95 @@ public class XlsTable {
   	  	dd.set(col, update);
   	  	this.data.set(row, dd);
 	}
+	
+	public void loadToTable(final Table table) {
+        // fill the headers and data
+        for (int i = 0; i < headers.size(); i++) {
+        	TableColumn column = new TableColumn(table, SWT.NONE, i);
+        	column.setText(headers.get(i).toString());
+        	table.getColumn(i).pack();
+        } 
+        for (int i = 0; i < sheet.getRows(); i++) {
+        	TableItem item = new TableItem(table, SWT.NONE, i);
+        	for (int j = 0; j < sheet.getColumns(); j++) {
+        		Cell cell = sheet.getCell(j, i);
+            	item.setText(j, cell.getContents());
+            	//item.addListener(eventType, listener);
+        	}	
+        }
+        
+        final TableEditor editor = new TableEditor(table);
+        editor.horizontalAlignment = SWT.LEFT;
+        editor.grabHorizontal = true;        
+        table.addListener(SWT.MouseDoubleClick, new Listener(){
+			@Override
+			public void handleEvent(Event event) {
+				// TODO Auto-generated method stub
+	    		Rectangle clientArea = table.getClientArea();
+	    		Point pt = new Point(event.x, event.y);
+	            int index = table.getTopIndex();
+	            while (index < table.getItemCount()) {
+	            	boolean visible = false;
+	            	final int row = index;
+	            	final TableItem item = table.getItem(index);
+	            	for (int i = 0; i < table.getColumnCount(); i++) {
+	            		Rectangle rect = item.getBounds(i);
+	            		if (rect.contains(pt)) {
+	            			final int column = i;
+	                        final Text text = new Text(table, SWT.NONE);
+	                        Listener textListener = new Listener() {
+								@Override
+								public void handleEvent(Event evt) {
+									// TODO Auto-generated method stub
+									switch (evt.type) {
+					                  case SWT.FocusOut:
+					                	  item.setText(column, text.getText());
+					                	  XlsTable.this.setData(row, column, text.getText());;
+//					                	  Vector dd = (Vector) data.get(row);
+//					                	  dd.set(column, text.getText());
+//					                	  data.set(row, dd);
+					                	  //System.out.println(column + " "+ row + " = " + dd.get(column));
+					                	  text.dispose();
+					                	  break;
+					                  case SWT.Traverse:
+					                	  switch (evt.detail) {
+					                	  case SWT.TRAVERSE_RETURN:
+					                		  item.setText(column, text.getText());
+					                		  // FALL THROUGH
+					                	  case SWT.TRAVERSE_ESCAPE:
+					                		  text.dispose();
+					                		  evt.doit = false;
+					                	  }
+					                  break;
+									}
+								}
+	                 
+	                        };
+	                        text.addListener(SWT.FocusOut, textListener);
+	                        text.addListener(SWT.Traverse, textListener);
+	                        editor.setEditor(text, item, i);
+	                        text.setText(item.getText(i));
+	                        text.selectAll();
+	                        text.setFocus();
+	                        return;
+	            		}
+	            		if (!visible && rect.intersects(clientArea)) {
+	            			visible = true;
+	            		}
+	            	}
+	            	if (!visible) return;
+	            	index++;
+	            }
+			}
+        	
+        });        
+	}
 
-	public void importContents(String fileSelectedPath, final Table table) {
+	public void importContents(String fileSelectedPath) {
     	try {
             File inputWorkbook = new File(fileSelectedPath);
             Workbook w = Workbook.getWorkbook(inputWorkbook);
-            Sheet sheet = w.getSheet(0);
+            this.sheet = w.getSheet(0);
             int rows = sheet.getRows();
             int cols = sheet.getColumns();
             
@@ -89,87 +173,6 @@ public class XlsTable {
             	}
             	data.add(d);	
             }
-            
-            // fill the headers and data
-            for (int i = 0; i < headers.size(); i++) {
-            	TableColumn column = new TableColumn(table, SWT.NONE, i);
-            	column.setText(headers.get(i).toString());
-            	table.getColumn(i).pack();
-            } 
-            for (int i = 0; i < sheet.getRows(); i++) {
-            	TableItem item = new TableItem(table, SWT.NONE, i);
-            	for (int j = 0; j < sheet.getColumns(); j++) {
-            		Cell cell = sheet.getCell(j, i);
-	            	item.setText(j, cell.getContents());
-	            	//item.addListener(eventType, listener);
-            	}	
-            }
-            final TableEditor editor = new TableEditor(table);
-            editor.horizontalAlignment = SWT.LEFT;
-            editor.grabHorizontal = true;        
-            table.addListener(SWT.MouseDoubleClick, new Listener(){
-				@Override
-				public void handleEvent(Event event) {
-					// TODO Auto-generated method stub
-    	    		Rectangle clientArea = table.getClientArea();
-    	    		Point pt = new Point(event.x, event.y);
-    	            int index = table.getTopIndex();
-    	            while (index < table.getItemCount()) {
-    	            	boolean visible = false;
-    	            	final int row = index;
-    	            	final TableItem item = table.getItem(index);
-    	            	for (int i = 0; i < table.getColumnCount(); i++) {
-    	            		Rectangle rect = item.getBounds(i);
-    	            		if (rect.contains(pt)) {
-    	            			final int column = i;
-    	                        final Text text = new Text(table, SWT.NONE);
-    	                        Listener textListener = new Listener() {
-									@Override
-									public void handleEvent(Event evt) {
-										// TODO Auto-generated method stub
-										switch (evt.type) {
-						                  case SWT.FocusOut:
-						                	  item.setText(column, text.getText());
-						                	  XlsTable.this.setData(row, column, text.getText());;
-//						                	  Vector dd = (Vector) data.get(row);
-//						                	  dd.set(column, text.getText());
-//						                	  data.set(row, dd);
-						                	  //System.out.println(column + " "+ row + " = " + dd.get(column));
-						                	  text.dispose();
-						                	  break;
-						                  case SWT.Traverse:
-						                	  switch (evt.detail) {
-						                	  case SWT.TRAVERSE_RETURN:
-						                		  item.setText(column, text.getText());
-						                		  // FALL THROUGH
-						                	  case SWT.TRAVERSE_ESCAPE:
-						                		  text.dispose();
-						                		  evt.doit = false;
-						                	  }
-						                  break;
-										}
-									}
-    	                 
-    	                        };
-    	                        text.addListener(SWT.FocusOut, textListener);
-    	                        text.addListener(SWT.Traverse, textListener);
-    	                        editor.setEditor(text, item, i);
-    	                        text.setText(item.getText(i));
-    	                        text.selectAll();
-    	                        text.setFocus();
-    	                        return;
-    	            		}
-    	            		if (!visible && rect.intersects(clientArea)) {
-    	            			visible = true;
-    	            		}
-    	            	}
-    	            	if (!visible) return;
-    	            	index++;
-    	            }
-				}
-            	
-            });
-            
 
         } catch (BiffException e) {
             e.printStackTrace();
