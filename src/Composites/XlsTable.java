@@ -43,12 +43,20 @@ public class XlsTable {
 		return headers;
 	}
 
+	public int getHeadersSize() {
+		return this.headers.size();
+	}
+
 //	public void setHeaders(Vector headers) {
 //		this.headers = headers;
 //	}
 
 	public Vector getData(int row) {
 		return (Vector) this.data.get(row);
+	}
+	
+	public int getDataSize() {
+		return this.data.size();
 	}
 	
 	public void setData(int row, Vector dd) {
@@ -173,7 +181,6 @@ public class XlsTable {
             	}
             	data.add(d);	
             }
-
         } catch (BiffException e) {
             e.printStackTrace();
         } catch (IOException e) {
