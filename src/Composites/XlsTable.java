@@ -50,6 +50,9 @@ public class XlsTable {
 		return (Vector) this.data.get(row);
 	}
 	
+	public void setData(int row, Vector dd) {
+		this.data.set(row, dd);
+	}
 	
 	public void setData(int row, int col, String update) {
 		//this.data = data;
