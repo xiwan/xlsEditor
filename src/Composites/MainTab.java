@@ -12,13 +12,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 
 import xlsEditor.MainApp;
 
 public class MainTab extends Composite {
-	private Label label;
 	
 	private String selectedDir;
 	private String defaultDirPath = "/Users/xi.a.wan/Documents/dev/svn/projectX";
@@ -37,14 +38,14 @@ public class MainTab extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public MainTab(Composite parent, int style) {
+	public MainTab(final Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new GridLayout(1, false));
 		this.setSize(650, 600);
 		
-		label = new Label(this, SWT.BORDER | SWT.WRAP);
+		Label label = new Label(this, SWT.BORDER | SWT.WRAP);
 	    label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-	    label.setText("Select a director by clicking the buttons below.");
+	    label.setText("选择xls工作目录");
 	    
 	    Button button = new Button(this, SWT.PUSH);
 	    button.setText("Browse...");
@@ -53,7 +54,7 @@ public class MainTab extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 	    		DirectoryDialog dirDialog = new DirectoryDialog(MainApp.shell);
 	    		dirDialog.setFilterPath(defaultDirPath);
-	    		dirDialog.setMessage("选择工作文件夹");
+	    		dirDialog.setMessage("选择xls工作目录");
 
 	    		String dir = dirDialog.open();
 	    		if(dir != null) {
@@ -63,9 +64,20 @@ public class MainTab extends Composite {
 	    			traverse(new File(selectedDir));
 	    			MainApp.filteredFiles = filteredFiles;
 	    			XlsTable.loadXlsToMem(filteredFiles);
+	    			String fileMesseage = "";
+	    			int idx = 0;
+	    			for (String filePath : filteredFiles) {
+	    				int pos = filePath.lastIndexOf("/");
+	    				fileMesseage += (++idx) + ". " + filePath.substring(pos+1) + "\n";
+	    			}
+	    			MessageBox dialog = new MessageBox(MainApp.shell, SWT.OK);
+	    			dialog.setText("导入文件结果");
+					dialog.setMessage(fileMesseage);
+					dialog.open();
 	    		}
 	    	};
 	    });
+	    new Label(this, SWT.NONE); 
 	}
 	
 	public void traverse(File dir){

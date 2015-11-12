@@ -17,12 +17,14 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
+import xlsEditor.MainApp;
 import jxl.Cell;
 import jxl.CellType;
 import jxl.Sheet;
@@ -120,8 +122,13 @@ public class XlsTable {
 	}
 	
 	public void loadToTable(final Table table) {
-		table.clearAll();
-		if (data == null) return;
+		if (data == null || data.size() == 0) {
+			MessageBox dialog = new MessageBox(MainApp.shell, SWT.OK);
+			dialog.setText("没有数据");
+			dialog.setMessage("有可能没有设置xls的工作目录!");
+			dialog.open();
+			return;
+		};
 		// fill the headers and data
         for (int i = 0; i < headers.size(); i++) {
         	TableColumn column = new TableColumn(table, SWT.NONE, i);

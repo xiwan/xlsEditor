@@ -96,7 +96,7 @@ public class NpcTab extends Composite {
 	    xlsTable = new Table(this, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.VIRTUAL);
 	    xlsTable.setHeaderVisible(true);
 	    xlsTable.setLinesVisible(true);
-	    xlsTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+	    xlsTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 	    new Label(this, SWT.NONE);
 	    
 	    btnSave = new Button(this, SWT.NONE);
