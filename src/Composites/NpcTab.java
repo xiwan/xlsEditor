@@ -58,8 +58,8 @@ public class NpcTab extends Composite {
 				
 				FileDialog fileDialog = new FileDialog(MainApp.shell, SWT.SINGLE);
 				fileDialog.setFilterPath(defaultDirPath);
-				fileDialog.setFilterExtensions(new String[]{"*.xls"});
-		        fileDialog.setFilterNames(new String[]{ "xls Document"});
+				fileDialog.setFilterExtensions(new String[]{"*.xls", "*.xlsx"});
+		        fileDialog.setFilterNames(new String[]{ "xls Document", "xlsx Document"});
 		        
 		        String firstFile = fileDialog.open();
 		        if(firstFile != null) {

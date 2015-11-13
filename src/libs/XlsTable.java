@@ -1,6 +1,8 @@
 package libs;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +12,13 @@ import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -25,17 +34,17 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 import xlsEditor.MainApp;
-import jxl.Cell;
-import jxl.CellType;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.WorkbookSettings;
-import jxl.read.biff.BiffException;
-import jxl.write.Label;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
-import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
+//import jxl.Cell;
+//import jxl.CellType;
+//import jxl.Sheet;
+//import jxl.Workbook;
+//import jxl.WorkbookSettings;
+//import jxl.read.biff.BiffException;
+//import jxl.write.Label;
+//import jxl.write.WritableSheet;
+//import jxl.write.WritableWorkbook;
+//import jxl.write.WriteException;
+//import jxl.write.biff.RowsExceededException;
 
 public class XlsTable {
 	
@@ -92,40 +101,52 @@ public class XlsTable {
 		try {
 			sheetsMap.clear();
 			for(String filePath: files) {
-				File inputWorkbook = new File(filePath);
-				Workbook w = Workbook.getWorkbook(inputWorkbook);
-				Sheet[] sheets = w.getSheets();
+				FileInputStream fis = new FileInputStream(new File(filePath));
+				XSSFWorkbook myWorkBook = new XSSFWorkbook (fis);
+				int sheetLength = myWorkBook.getNumberOfSheets();
+				//Workbook w = Workbook.getWorkbook(inputWorkbook);
+				//Sheet[] sheets = myWorkBook.gets.getSheets();
 				
-				for (int idx = 0; idx < sheets.length; idx ++) {
-	            	Sheet sheet = w.getSheet(idx);
-	            	String sheetName = sheet.getName();
+				
+				for (int idx = 0; idx < sheetLength; idx ++) {
+	            	//Sheet sheet = w.getSheet(idx);
+	            	XSSFSheet sheet = myWorkBook.getSheetAt(idx);
+	            	String sheetName = myWorkBook.getSheetName(idx);
 	            	Vector sheetData = new Vector();
 	            	
-	            	int rows = sheet.getRows();
-	                int cols = sheet.getColumns();
-	                
-	                for (int i = 0; i < rows; i++) {
-	                	Vector d = new Vector();
-	                	for (int j = 0; j < cols; j++) {
-	                		Cell cell = sheet.getCell(j, i);
-	                		CellType type = cell.getType();
-	                		if (type == CellType.LABEL) {
-	                			d.add(cell.getContents().toString());
-	                		}
-	                		if (type == CellType.NUMBER) {
-	                			d.add(cell.getContents().toString());
-	                		}
-	                		if (type == CellType.EMPTY) {
-	                			d.add("");
-	                		}
-	                	}
-	                	sheetData.add(d);
-	                }
-	                sheetsMap.put(sheetName, sheetData);
+	            	// Traversing over each row of XLSX file
+	            	Iterator<Row> rowIterator = sheet.iterator();
+	            	while (rowIterator.hasNext()) {
+	            		Row row = rowIterator.next();
+	            		Vector d = new Vector();
+	            		// For each row, iterate through each columns
+	            		Iterator<Cell> cellIterator = row.cellIterator();
+	            		while (cellIterator.hasNext()) {
+	            			Cell cell = cellIterator.next();
+	            			switch (cell.getCellType()) {
+	            			case Cell.CELL_TYPE_STRING:
+	            				d.add(cell.getStringCellValue());
+	            				break;
+	            			case Cell.CELL_TYPE_NUMERIC:
+	            				d.add(cell.getNumericCellValue());
+	            				break;
+	            			case Cell.CELL_TYPE_BOOLEAN:
+	            				d.add(cell.getBooleanCellValue());
+	            				break;
+	            			case Cell.CELL_TYPE_BLANK:
+	            				d.add("");
+	            				break;
+	            			default:
+	            				d.add("");
+	            			}	
+	            		}
+	            		sheetData.add(d);	
+	            	}
+	            	sheetsMap.put(sheetName, sheetData);
 	            }
 				
 			}
-		} catch (BiffException | IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -150,6 +171,8 @@ public class XlsTable {
         	TableItem item = new TableItem(table, SWT.NONE, i);
         	Vector dd = (Vector)data.get(i);
         	for (int j = 0; j < headers.size(); j++) {
+        		System.out.println(dd);
+        		System.out.println(dd.size() + " " + j + " " + i);
             	item.setText(j, dd.get(j).toString());
         	}	
         }
@@ -232,37 +255,48 @@ public class XlsTable {
 
 	public void importContents(String fileSelectedPath) {
     	try {
-			File inputWorkbook = new File(fileSelectedPath);
-			System.out.println(fileSelectedPath);
-            Workbook w = Workbook.getWorkbook(inputWorkbook);
-            Sheet[] sheets = w.getSheets();
+    		sheetsMap.clear();
+			FileInputStream fis = new FileInputStream(new File(fileSelectedPath));
+			XSSFWorkbook myWorkBook = new XSSFWorkbook (fis);
+			int sheetLength = myWorkBook.getNumberOfSheets();
+			
             String sheetName = "";
             
-            for (int idx = 0; idx < sheets.length; idx ++) {
-            	Sheet sheet = w.getSheet(idx);
-            	sheetName = sheet.getName();
+            for (int idx = 0; idx < sheetLength; idx ++) {
+            	XSSFSheet sheet = myWorkBook.getSheetAt(idx);
+            	sheetName = myWorkBook.getSheetName(idx);
             	Vector sheetData = new Vector();
             	
-            	int rows = sheet.getRows();
-                int cols = sheet.getColumns();
-                
-                for (int i = 0; i < rows; i++) {
-                	Vector d = new Vector();
-                	for (int j = 0; j < cols; j++) {
-                		Cell cell = sheet.getCell(j, i);
-                		CellType type = cell.getType();
-                		if (type == CellType.LABEL) {
-                			d.add(cell.getContents().toString());
-                		}
-                		if (type == CellType.NUMBER) {
-                			d.add(cell.getContents().toString());
-                		}
-                		if (type == CellType.EMPTY) {
-                			d.add("");
-                		}
-                	}
-                	sheetData.add(d);
-                }
+            	// Traversing over each row of XLSX file
+            	Iterator<Row> rowIterator = sheet.iterator();
+            	while (rowIterator.hasNext()) {
+            		Row row = rowIterator.next();
+            		Vector d = new Vector();
+            		// For each row, iterate through each columns
+            		Iterator<Cell> cellIterator = row.cellIterator();
+            		while (cellIterator.hasNext()) {
+            			Cell cell = cellIterator.next();
+
+            			switch (cell.getCellType()) {
+            			case Cell.CELL_TYPE_STRING:
+            				d.add(cell.getStringCellValue());
+            				break;
+            			case Cell.CELL_TYPE_NUMERIC:
+            				d.add(cell.getNumericCellValue());
+            				break;
+            			case Cell.CELL_TYPE_BOOLEAN:
+            				d.add(cell.getBooleanCellValue());
+            				break;
+            			case Cell.CELL_TYPE_BLANK:
+            				d.add("");
+            				break;
+            			default:
+            				d.add("");
+            			}	
+            		}
+            		sheetData.add(d);	
+            	}
+
                 sheetsMap.put(sheetName, sheetData);
             }
     		
@@ -272,8 +306,6 @@ public class XlsTable {
     			return;
     		}
     		this.headers = (Vector)data.get(3);
-        } catch (BiffException e) {
-            e.printStackTrace();
         } catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -284,34 +316,33 @@ public class XlsTable {
     
     public void exportContents(String outputPath){
     	try { 
-    		WritableWorkbook workbook = Workbook.createWorkbook(new File(outputPath));
+    		//FileInputStream fis = new FileInputStream(new File(outputPath));
+    		XSSFWorkbook workbook = new XSSFWorkbook ();
     		int idx = 0;
     		for (Entry<String, Vector> entry : sheetsMap.entrySet()) {
     			Vector dd = entry.getValue();
     			DefaultTableModel model = new DefaultTableModel(dd, (Vector)data.get(3));
-    			WritableSheet sheet = workbook.createSheet(entry.getKey(), idx++);
+    			XSSFSheet sheet = workbook.createSheet(entry.getKey());
     			for (int i=0; i < model.getRowCount(); i++) {
+    				XSSFRow row = sheet.createRow(i);
     				for (int j=0; j < model.getColumnCount(); j++) {
+    					XSSFCell rlc = row.createCell(j);
     					if (model.getValueAt(i, j) != null) {
-    						Label content = new Label(j, i, model.getValueAt(i, j).toString());
-    						sheet.addCell(content);
+    						rlc.setCellValue(model.getValueAt(i, j).toString());
     					}
     				}
     	        } 
     			
     		}
-    		workbook.write();
-    		workbook.close(); 
+    		
+    		// open an OutputStream to save written data into XLSX file
+            FileOutputStream fos = new FileOutputStream(new File(outputPath));
+            workbook.write(fos);
+            fos.close(); 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (RowsExceededException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (WriteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
           	
     };
 
