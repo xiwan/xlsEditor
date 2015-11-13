@@ -128,7 +128,15 @@ public class XlsTable {
 	            				d.add(cell.getStringCellValue());
 	            				break;
 	            			case Cell.CELL_TYPE_NUMERIC:
-	            				d.add(cell.getNumericCellValue());
+	            				int intNum = 0;
+	            				double number = cell.getNumericCellValue();
+	            				double floorNum = Math.floor(number);
+	            				if (number - floorNum == 0) {
+	            					intNum = (int) number;
+	            					d.add(intNum + "");
+	            				}else {
+	            					d.add(number);
+	            				}
 	            				break;
 	            			case Cell.CELL_TYPE_BOOLEAN:
 	            				d.add(cell.getBooleanCellValue());
@@ -282,7 +290,15 @@ public class XlsTable {
             				d.add(cell.getStringCellValue());
             				break;
             			case Cell.CELL_TYPE_NUMERIC:
-            				d.add(cell.getNumericCellValue());
+            				int intNum = 0;
+            				double number = cell.getNumericCellValue();
+            				double floorNum = Math.floor(number);
+            				if (number - floorNum == 0) {
+            					intNum = (int) number;
+            					d.add(intNum + "");
+            				}else {
+            					d.add(number);
+            				}
             				break;
             			case Cell.CELL_TYPE_BOOLEAN:
             				d.add(cell.getBooleanCellValue());
