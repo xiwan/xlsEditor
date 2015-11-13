@@ -78,6 +78,16 @@ public class XlsTable {
   	  	this.sheetsMap.put(this.sheetName, this.data);
 	}
 	
+	public void appendData(Vector dd) {
+		this.data.add(dd);
+		this.sheetsMap.put(this.sheetName, this.data);
+	}
+	
+	public void removeData(int row) {
+		this.data.remove(row);
+		this.sheetsMap.put(this.sheetName, this.data);
+	}
+	
 	public static void loadXlsToMem(ArrayList<String> files) {
 		try {
 			sheetsMap.clear();
